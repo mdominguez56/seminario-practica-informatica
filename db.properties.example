@@ -1,0 +1,5 @@
+# Copiar este archivo como db.properties (en la carpeta desde donde se ejecuta la aplicación)
+# y completar los datos de la instancia MySQL local. db.properties no se sube al repositorio.
+db.url=jdbc:mysql://localhost:3306/fundacion_cana?serverTimezone=America/Argentina/Buenos_Aires
+db.usuario=root
+db.password=tp3demo

@@ -1,0 +1,43 @@
+@startuml secuencia-registrar-proyecto
+skinparam dpi 160
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam sequence {
+  ParticipantBackgroundColor #F3F8F7
+  ParticipantBorderColor #0F4141
+  ArrowColor #0F4141
+  LifeLineBorderColor #0F4141
+}
+title Secuencia implementada: CU02 - Registrar proyecto
+
+actor "Líder" as lider
+participant "ProyectosView\n/ Formulario" as vista
+participant "ProyectoController" as ctrl
+participant "Proyecto" as proyecto
+participant "ProyectoDao" as dao
+database "MySQL" as db
+
+lider -> vista : Nuevo proyecto
+vista -> ctrl : listarLideres()
+vista --> lider : muestra el formulario
+lider -> vista : completa los datos y presiona Guardar
+vista -> vista : Formato.leerImporte(presupuesto)
+vista -> proyecto ** : new Proyecto(nombre, objetivo,\npresupuesto, inicio, fin, idLider)
+vista -> ctrl : registrarProyecto(proyecto)
+ctrl -> ctrl : verificarPermiso()
+ctrl -> proyecto : validar()
+alt datos inválidos
+  proyecto --> ctrl : throw ValidacionException
+  ctrl --> vista : ValidacionException
+  vista --> lider : muestra el mensaje y mantiene el formulario abierto
+else datos válidos
+  ctrl -> dao : insertar(proyecto)
+  dao -> db : INSERT INTO proyectos ... (PreparedStatement)
+  db --> dao : id generado
+  dao -> proyecto : setId(id)
+  dao --> ctrl
+  ctrl --> vista
+  vista -> ctrl : listarProyectos()
+  vista --> lider : "Proyecto registrado en estado Planificación"
+end
+@enduml

@@ -1,0 +1,34 @@
+@startuml despliegue
+!pragma layout smetana
+skinparam dpi 160
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam node {
+  BackgroundColor #F3F8F7
+  BorderColor #0F4141
+}
+skinparam ArrowColor #0F4141
+title Diagrama de despliegue e infraestructura física del prototipo
+
+node "PC de escritorio / notebook de la Fundación\n(Windows o Linux, 8 GB RAM, placa Ethernet o Wi-Fi)" as pc {
+  node "JVM - Java 21" as jvm {
+    artifact "gestion-proyectos.jar\n(JavaFX 21 + MVC)" as app
+    artifact "MySQL Connector/J 9\n(driver JDBC)" as jdbc
+    file "db.properties" as cfg
+  }
+  node "Docker Engine / servicio MySQL" as docker {
+    database "MySQL 8.0 (InnoDB)\nbase fundacion_cana\npuerto 3306" as mysql
+  }
+}
+
+app --> jdbc : llamadas JDBC\n(PreparedStatement)
+app ..> cfg : lee URL y credenciales
+jdbc --> mysql : TCP/IP sobre loopback\n127.0.0.1:3306\n(protocolo cliente/servidor MySQL)
+
+node "Escenario futuro: red local de la sede" as lan {
+  node "Switch / router\nEthernet IEEE 802.3 (cable UTP Cat. 6)\nWi-Fi IEEE 802.11ac" as sw
+  node "Servidor de base de datos\nMySQL 8 + TLS" as srv
+}
+pc ..> sw : enlace de datos\nEthernet / Wi-Fi
+sw ..> srv : TCP/IP 3306 cifrado (TLS)
+@enduml

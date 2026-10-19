@@ -1,0 +1,112 @@
+@startuml arquitectura-capas
+!pragma layout smetana
+skinparam dpi 150
+top to bottom direction
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #F3F8F7
+  BorderColor #0F4141
+  ArrowColor #0F4141
+}
+title Diagrama de clases de diseño - capas Vista, Controlador y Persistencia
+
+class App <<vista>> <<JavaFX Application>> {
+  - contexto : Contexto
+  + start(ventana : Stage) : void
+}
+class LoginView <<vista>>
+class MainView <<vista>> {
+  - usuario : Usuario
+  + seleccionar(opcion : OpcionMenu) : void
+}
+class ProyectosView <<vista>>
+class TableroView <<vista>>
+class MisHitosView <<vista>>
+class Formularios <<vista>>
+
+class AuthController <<controlador>> {
+  - intentosFallidos : int
+  + iniciarSesion(email, password) : Usuario
+}
+class ProyectoController <<controlador>> {
+  - usuarioActual : Usuario
+  + listarProyectos() : List<Proyecto>
+  + registrarProyecto(p : Proyecto) : void
+  + actualizarProyecto(p : Proyecto) : void
+  + cancelarProyecto(p : Proyecto) : void
+  + buscarYOrdenar(lista, texto, criterio) : List<Proyecto>
+}
+class HitoController <<controlador>> {
+  - usuarioActual : Usuario
+  + guardarHito(h : Hito) : void
+  + eliminarHito(h : Hito) : void
+  + actualizarAvance(h : Hito, avance : BigDecimal) : void
+  + registrarCosto(c : Costo) : void
+}
+class TableroController <<controlador>> {
+  + calcularIndicadores(lista, hoy) : IndicadoresTablero
+  + generarAlertas(lista, hoy) : List<Alerta>
+}
+
+interface "CrudDao<T extends Entidad>" as CrudDao <<dao>> {
+  + listar() : List<T>
+  + buscarPorId(id : int) : Optional<T>
+  + insertar(e : T) : void
+  + actualizar(e : T) : void
+  + eliminar(id : int) : void
+}
+class ProyectoDao <<dao>>
+class HitoDao <<dao>> {
+  + listarPorProyecto(id : int) : List<Hito>
+  + listarPorResponsable(id : int) : List<Hito>
+  + actualizarAvance(h : Hito) : void
+}
+class CostoDao <<dao>>
+class UsuarioDao <<dao>> {
+  + autenticar(email, hash) : Optional<Usuario>
+  + listarPorRol(rol : Rol) : List<Usuario>
+}
+class ConexionDB <<dao>> <<Singleton>> {
+  - url : String
+  - usuario : String
+  - password : String
+  + {static} getInstancia() : ConexionDB
+  + getConexion() : Connection
+}
+
+class Algoritmos <<util>> {
+  + {static} ordenarPorInsercion(lista, comparador) : void
+  + {static} busquedaBinaria(lista, clave, extractor) : int
+  + {static} busquedaLineal(lista, condicion) : List<T>
+}
+
+App --> LoginView
+App --> MainView
+MainView --> ProyectosView
+MainView --> TableroView
+MainView --> MisHitosView
+ProyectosView ..> Formularios
+LoginView --> AuthController
+ProyectosView --> ProyectoController
+ProyectosView --> HitoController
+MisHitosView --> HitoController
+TableroView --> TableroController
+AuthController --> UsuarioDao
+ProyectoController --> ProyectoDao
+ProyectoController ..> Algoritmos
+HitoController --> HitoDao
+HitoController --> CostoDao
+TableroController --> ProyectoDao
+CrudDao <|.. ProyectoDao
+CrudDao <|.. HitoDao
+CrudDao <|.. CostoDao
+ProyectoDao --> HitoDao
+HitoDao --> CostoDao
+ProyectoDao ..> ConexionDB
+HitoDao ..> ConexionDB
+CostoDao ..> ConexionDB
+UsuarioDao ..> ConexionDB
+@enduml

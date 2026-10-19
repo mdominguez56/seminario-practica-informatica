@@ -1,0 +1,54 @@
+Table roles {
+  id_rol int [pk, increment]
+  nombre varchar(40) [not null, unique]
+}
+
+Table usuarios {
+  id_usuario int [pk, increment]
+  id_rol int [not null, ref: > roles.id_rol]
+  nombre varchar(100) [not null]
+  email varchar(120) [not null, unique]
+  password_hash char(64) [not null]
+  activo boolean [not null, default: true]
+}
+
+Table proyectos {
+  id_proyecto int [pk, increment]
+  id_lider int [not null, ref: > usuarios.id_usuario]
+  nombre varchar(150) [not null]
+  objetivo text [not null]
+  presupuesto_inicial decimal(12,2) [not null]
+  fecha_inicio date [not null]
+  fecha_fin date
+  estado varchar(30) [not null]
+}
+
+Table hitos {
+  id_hito int [pk, increment]
+  id_proyecto int [not null, ref: > proyectos.id_proyecto]
+  nombre varchar(150) [not null]
+  descripcion text
+  fecha_limite date [not null]
+  porcentaje_avance decimal(5,2) [not null, note: 'CHECK 0 a 100']
+  estado varchar(30) [not null, note: 'PENDIENTE | EN_PROGRESO | COMPLETADO']
+}
+
+Table asignaciones {
+  id_asignacion int [pk, increment]
+  id_hito int [not null, ref: > hitos.id_hito]
+  id_usuario int [not null, ref: > usuarios.id_usuario]
+  fecha_asignacion date [not null]
+  fecha_desasignacion date
+
+  indexes {
+    (id_hito, id_usuario) [unique]
+  }
+}
+
+Table costos {
+  id_costo int [pk, increment]
+  id_hito int [not null, ref: > hitos.id_hito]
+  fecha date [not null]
+  monto decimal(12,2) [not null]
+  descripcion varchar(255) [not null]
+}

@@ -1,0 +1,87 @@
+@startuml der
+!pragma layout smetana
+skinparam dpi 170
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor #F3F8F7
+  BorderColor #0F4141
+  ArrowColor #0F4141
+}
+hide circle
+hide methods
+title Diagrama entidad-relación (modelo relacional) - base fundacion_cana
+
+entity "roles" as roles {
+  * <<PK>> id_rol : INT AUTO_INCREMENT
+  --
+  * nombre : VARCHAR(40) UNIQUE
+}
+
+entity "usuarios" as usuarios {
+  * <<PK>> id_usuario : INT AUTO_INCREMENT
+  --
+  * <<FK>> id_rol : INT
+  * nombre : VARCHAR(100)
+  * email : VARCHAR(120) UNIQUE
+  * password_hash : CHAR(64)
+  * activo : BOOLEAN
+}
+
+entity "proyectos" as proyectos {
+  * <<PK>> id_proyecto : INT AUTO_INCREMENT
+  --
+  * <<FK>> id_lider : INT
+  * nombre : VARCHAR(150)
+  * objetivo : TEXT
+  * presupuesto_inicial : DECIMAL(12,2)
+  * fecha_inicio : DATE
+    fecha_fin : DATE
+  * estado : VARCHAR(30)
+}
+
+entity "hitos" as hitos {
+  * <<PK>> id_hito : INT AUTO_INCREMENT
+  --
+  * <<FK>> id_proyecto : INT
+  * nombre : VARCHAR(150)
+    descripcion : TEXT
+  * fecha_limite : DATE
+  * porcentaje_avance : DECIMAL(5,2)
+  * estado : VARCHAR(30)
+}
+
+entity "asignaciones" as asignaciones {
+  * <<PK>> id_asignacion : INT AUTO_INCREMENT
+  --
+  * <<FK>> id_hito : INT
+  * <<FK>> id_usuario : INT
+  * fecha_asignacion : DATE
+    fecha_desasignacion : DATE
+  UNIQUE (id_hito, id_usuario)
+}
+
+entity "costos" as costos {
+  * <<PK>> id_costo : INT AUTO_INCREMENT
+  --
+  * <<FK>> id_hito : INT
+  * fecha : DATE
+  * monto : DECIMAL(12,2)
+  * descripcion : VARCHAR(255)
+}
+
+roles ||--o{ usuarios : "1 : N"
+usuarios ||--o{ proyectos : "lidera 1 : N"
+proyectos ||--o{ hitos : "1 : N"
+hitos ||--o{ asignaciones : "1 : N"
+usuarios ||--o{ asignaciones : "1 : N"
+hitos ||--o{ costos : "1 : N"
+
+legend right
+  * = NOT NULL
+  ||--o{ = uno a cero o muchos
+  CHECK: presupuesto >= 0, avance 0-100,
+  monto > 0, fecha_fin >= fecha_inicio
+endlegend
+@enduml

@@ -1,0 +1,149 @@
+@startuml clases-modelo
+!pragma layout smetana
+skinparam dpi 170
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam class {
+  BackgroundColor #F3F8F7
+  BorderColor #0F4141
+  ArrowColor #0F4141
+}
+title Diagrama de clases de diseño - paquete modelo
+
+abstract class Entidad {
+  - id : int
+  # Entidad(id : int)
+  + getId() : int
+  + esNueva() : boolean
+  + {abstract} validar() : void
+  # {static} requerirTexto(valor : String, campo : String) : void
+}
+
+class Proyecto {
+  - idLider : int
+  - nombreLider : String
+  - nombre : String
+  - objetivo : String
+  - presupuestoInicial : BigDecimal
+  - fechaInicio : LocalDate
+  - fechaFin : LocalDate
+  - estado : EstadoProyecto
+  - hitos : List<Hito>
+  + validar() : void
+  + calcularAvance() : BigDecimal
+  + calcularCostoEjecutado() : BigDecimal
+  + calcularEjecucionPresupuestaria() : BigDecimal
+  + tieneDesvioPresupuestario() : boolean
+  + obtenerHitosAtrasados(hoy : LocalDate) : List<Hito>
+  + agregarHito(hito : Hito) : void
+}
+
+class Hito {
+  - idProyecto : int
+  - nombre : String
+  - descripcion : String
+  - fechaLimite : LocalDate
+  - porcentajeAvance : BigDecimal
+  - estado : EstadoHito
+  - idResponsable : int
+  - nombreResponsable : String
+  - costos : List<Costo>
+  + validar() : void
+  + actualizarAvance(nuevo : BigDecimal) : void
+  + estaAtrasado(hoy : LocalDate) : boolean
+  + calcularCostoTotal() : BigDecimal
+  + agregarCosto(costo : Costo) : void
+}
+
+class Costo {
+  - idHito : int
+  - fecha : LocalDate
+  - monto : BigDecimal
+  - descripcion : String
+  + validar() : void
+}
+
+enum EstadoProyecto {
+  PLANIFICACION
+  EN_PROGRESO
+  FINALIZADO
+  CANCELADO
+  + estaActivo() : boolean
+}
+
+enum EstadoHito {
+  PENDIENTE
+  EN_PROGRESO
+  COMPLETADO
+}
+
+abstract class Usuario {
+  - idUsuario : int
+  - nombre : String
+  - email : String
+  - activo : boolean
+  + {abstract} getRol() : Rol
+  + {abstract} getOpcionesMenu() : List<OpcionMenu>
+  + {abstract} puedeActualizarAvance(hito : Hito) : boolean
+  + puedeGestionarProyectos() : boolean
+}
+
+class LiderProyecto {
+  + getRol() : Rol
+  + getOpcionesMenu() : List<OpcionMenu>
+  + puedeGestionarProyectos() : boolean
+  + puedeActualizarAvance(hito : Hito) : boolean
+}
+class Voluntario {
+  + getRol() : Rol
+  + getOpcionesMenu() : List<OpcionMenu>
+  + puedeActualizarAvance(hito : Hito) : boolean
+}
+class MiembroConsejo {
+  + getRol() : Rol
+  + getOpcionesMenu() : List<OpcionMenu>
+  + puedeActualizarAvance(hito : Hito) : boolean
+}
+
+enum Rol {
+  DIRECTIVO
+  LIDER_PROYECTO
+  VOLUNTARIO
+}
+
+abstract class Alerta {
+  - proyecto : String
+  + {abstract} getTipo() : String
+  + {abstract} getMensaje() : String
+  + {abstract} getPrioridad() : int
+  + compareTo(otra : Alerta) : int
+}
+class AlertaAtraso {
+  - hito : Hito
+  - diasAtraso : long
+}
+class AlertaDesvio {
+  - ejecucion : BigDecimal
+}
+interface "Comparable<Alerta>" as Comparable
+
+Entidad <|-- Proyecto
+Entidad <|-- Hito
+Entidad <|-- Costo
+Proyecto "1" *-- "0..*" Hito : contiene >
+Hito "1" *-- "0..*" Costo : registra >
+Proyecto --> EstadoProyecto
+Hito --> EstadoHito
+Usuario <|-- LiderProyecto
+Usuario <|-- Voluntario
+Usuario <|-- MiembroConsejo
+Usuario ..> Rol
+LiderProyecto "1" -- "0..*" Proyecto : lidera >
+Voluntario "1" -- "0..*" Hito : responsable de >
+Comparable <|.. Alerta
+Alerta <|-- AlertaAtraso
+Alerta <|-- AlertaDesvio
+AlertaAtraso --> "1" Hito
+AlertaDesvio ..> Proyecto
+@enduml
