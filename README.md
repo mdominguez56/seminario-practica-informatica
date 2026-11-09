@@ -7,17 +7,18 @@ de la Fundación María de Caná (Rosario).
 **Tecnologías:** Java 21, JavaFX 21, MySQL 8, JDBC (MySQL Connector/J), Maven, JUnit 5.
 **Arquitectura:** Modelo-Vista-Controlador con una capa de acceso a datos (DAO).
 
-## Funcionalidades implementadas (TP3)
+## Funcionalidades implementadas
 
-| Requisito | Funcionalidad |
-|---|---|
-| RF01 / CU01 | Inicio de sesión con email y contraseña (hash SHA-256) y menú según el rol. |
-| RF02-RF04 / CU02 | Alta, consulta, modificación y baja lógica (cancelación) de proyectos. |
-| RF05-RF06 / CU03 | Alta, modificación y eliminación de hitos con asignación de responsable. |
-| RF07 | Actualización del avance de un hito (el voluntario solo puede actualizar los propios). |
-| RF08 | Registro y eliminación de costos por hito. |
-| RF09-RF11 / CU04 | Tablero de control con indicadores, gráfico de presupuesto y alertas de atraso y desvío. |
-| Extra | Búsqueda (binaria por código, lineal por nombre) y ordenamiento por inserción de proyectos. |
+| Requisito | Funcionalidad | TP |
+|---|---|---|
+| RF01 / CU01 | Inicio de sesión con email y contraseña (hash SHA-256) y menú según el rol. | TP3 |
+| RF02-RF04 / CU02 | Alta, consulta, modificación y baja lógica (cancelación) de proyectos. | TP3 |
+| RF05-RF06 / CU03 | Alta, modificación y eliminación de hitos con asignación de responsable. | TP3 |
+| RF07 | Actualización del avance de un hito (el voluntario solo puede actualizar los propios). | TP3 |
+| RF08 | Registro y eliminación de costos por hito. | TP3 |
+| RF09-RF11 / CU04 | Tablero de control con indicadores, gráfico de presupuesto y alertas de atraso y desvío. | TP3 |
+| Extra | Búsqueda (binaria por código, lineal por nombre) y ordenamiento por inserción de proyectos. | TP3 |
+| Extra | Exportación de proyectos a archivo de texto (.txt) con FileChooser. Respeta el filtro activo. | TP4 |
 
 ## Requisitos
 
@@ -78,8 +79,8 @@ Desde un IDE: importar el proyecto como proyecto Maven y ejecutar la clase `com.
 │   ├── modelo/               Entidades, jerarquía de usuarios, alertas y enumeraciones
 │   ├── controlador/          Lógica de aplicación y control de permisos
 │   ├── dao/                  Acceso a datos con JDBC (interfaz CrudDao y DAOs)
-│   ├── excepciones/          Excepciones propias del sistema
-│   ├── util/                 Algoritmos de ordenación y búsqueda, formato y seguridad
+│   ├── excepciones/          Excepciones propias del sistema (incluye ExportacionException - TP4)
+│   ├── util/                 Algoritmos, formato, seguridad y ExportadorArchivo (E/S archivos - TP4)
 │   └── vista/                Pantallas JavaFX
 ├── src/main/resources/css/   Hoja de estilos de la interfaz
 ├── src/test/java/            Pruebas unitarias (JUnit 5)

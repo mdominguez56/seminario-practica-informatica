@@ -22,7 +22,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +108,7 @@ public class ProyectosView {
         if (usuario.puedeGestionarProyectos()) {
             raiz.getChildren().add(crearBotonesProyecto());
         }
+        raiz.getChildren().add(crearBotonExportar());
         Label tituloHitos = new Label("Hitos y costos del proyecto seleccionado");
         tituloHitos.getStyleClass().add("subtitulo");
         raiz.getChildren().addAll(tituloHitos, detalle, inferior);
@@ -125,6 +128,38 @@ public class ProyectosView {
         cancelar.getStyleClass().add("boton-peligro");
         cancelar.setOnAction(e -> conProyecto(this::cancelarProyecto));
         return new HBox(8, nuevo, editar, cancelar);
+    }
+
+    private HBox crearBotonExportar() {
+        Button exportar = new Button("Exportar proyectos a archivo");
+        exportar.setOnAction(e -> exportarProyectos());
+        return new HBox(exportar);
+    }
+
+    /** Abre un FileChooser para que el usuario elija dónde guardar el archivo .txt. */
+    private void exportarProyectos() {
+        List<Proyecto> visibles = new ArrayList<>(tablaProyectos.getItems());
+        if (visibles.isEmpty()) {
+            Dialogos.informacion("Sin datos", "No hay proyectos para exportar.");
+            return;
+        }
+        FileChooser selector = new FileChooser();
+        selector.setTitle("Guardar reporte de proyectos");
+        selector.setInitialFileName("proyectos_fundacion_cana.txt");
+        selector.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivo de texto (*.txt)", "*.txt"));
+        File destino = selector.showSaveDialog(raiz.getScene().getWindow());
+        if (destino == null) {
+            return; // El usuario canceló el diálogo
+        }
+        try {
+            proyectoController.exportarProyectos(visibles, destino);
+            estado.setText("Archivo exportado: " + destino.getName() + " (" + visibles.size() + " proyecto(s))");
+            Dialogos.informacion("Exportación exitosa",
+                    "El reporte fue guardado en:\n" + destino.getAbsolutePath());
+        } catch (SistemaException ex) {
+            Dialogos.error("Error al exportar", ex.getMessage());
+        }
     }
 
     private HBox crearBotonesHito() {

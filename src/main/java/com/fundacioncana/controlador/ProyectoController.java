@@ -2,6 +2,7 @@ package com.fundacioncana.controlador;
 
 import com.fundacioncana.dao.ProyectoDao;
 import com.fundacioncana.dao.UsuarioDao;
+import com.fundacioncana.excepciones.ExportacionException;
 import com.fundacioncana.excepciones.PermisoDenegadoException;
 import com.fundacioncana.excepciones.PersistenciaException;
 import com.fundacioncana.excepciones.ValidacionException;
@@ -11,7 +12,10 @@ import com.fundacioncana.modelo.Rol;
 import com.fundacioncana.modelo.Usuario;
 import com.fundacioncana.util.Algoritmos;
 import com.fundacioncana.util.CriterioOrden;
+import com.fundacioncana.util.ExportadorArchivo;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +90,23 @@ public class ProyectoController {
         }
         Algoritmos.ordenarPorInsercion(resultado, criterio.getComparador());
         return resultado;
+    }
+
+    /**
+     * Exporta la lista de proyectos al archivo indicado.
+     * Delega en {@link ExportadorArchivo} y envuelve cualquier {@link IOException}
+     * en una {@link ExportacionException}.
+     *
+     * @param proyectos lista a exportar
+     * @param destino   archivo elegido por el usuario
+     * @throws ExportacionException si no se puede escribir el archivo
+     */
+    public void exportarProyectos(List<Proyecto> proyectos, File destino) throws ExportacionException {
+        try {
+            ExportadorArchivo.exportarProyectos(proyectos, destino);
+        } catch (IOException e) {
+            throw new ExportacionException("No se pudo escribir el archivo: " + e.getMessage(), e);
+        }
     }
 
     private void verificarPermiso() throws PermisoDenegadoException {
